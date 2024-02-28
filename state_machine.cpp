@@ -92,3 +92,4 @@ void PuzzleBox::state3(const Event& event) {
             break;
     }
 }
+
