@@ -11,31 +11,38 @@ HCSR04Driver::HCSR04Driver(unsigned int trig_pin, unsigned int echo_pin):
 
 void HCSR04Driver::init(void) {
     gpioSetMode(trig_pin_, PI_OUTPUT);
+    gpioWrite(trig_pin_, PI_OFF);
     gpioSetMode(echo_pin_, PI_INPUT);
 }
 
 float HCSR04Driver::poll(void) {
-    // gpioRead(pin, )
-    // gpioWrite(pin, PI_ON/PI_OFF)
 
+    std::this_thread::sleep_for(10us);
     gpioWrite(trig_pin_, PI_ON);
     std::this_thread::sleep_for(10us);
     gpioWrite(trig_pin_, PI_OFF);
+    std::this_thread::sleep_for(10us);
 
-    auto start{steady_clock::now()};
-    auto end{start};
-    constexpr auto timeout = 1ms;
+    auto timeout_start{steady_clock::now()};
+    auto end{timeout_start};
+    constexpr auto timeout = 10ms;
     bool timed_out{false};
-    while (gpioRead(echo_pin_) == PI_LOW) {
+    while (!timed_out && gpioRead(echo_pin_) == PI_LOW) {
         end = steady_clock::now();
-        if (end-start > timeout) {
+        if (end-timeout_start > timeout) {
             timed_out = true;
-            break;
+        }
+    }
+    auto pulse_start{steady_clock::now()};
+    while (!timed_out && gpioRead(echo_pin_) == PI_HIGH) {
+        end = steady_clock::now();
+        if (end-timeout_start > timeout) {
+            timed_out = true;
         }
     }
     if (timed_out) {
         // Try again
         return poll();
     }
-    return (end-start)/58.772us;
+    return duration_cast<nanoseconds>(end-pulse_start).count() / 58772.f; // Conversion from datasheet
 }

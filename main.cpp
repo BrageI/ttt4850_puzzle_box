@@ -5,12 +5,14 @@
 #include "gpio_assignment.h"
 
 int main() {
-    gpioInitialise();
+    gpioInitialise(); // Necessary, don't remove
     
-    HCSR04Driver driver{PIN_ULTRASONIC0_TRIG, PIN_ULTRASONIC0_ECHO};
+    // For test
+    HCSR04Driver driver{PIN_ULTRASONIC4_TRIG, PIN_ULTRASONIC4_ECHO};
     driver.init();
     auto reading{driver.poll()};
-    std::cout << "Reading: " << reading << std::endl;
+    std::cout << "Test reading: " << reading << std::endl;
+    // End of test
 
     std::vector<Book> books{
         // {ID, thickness}
