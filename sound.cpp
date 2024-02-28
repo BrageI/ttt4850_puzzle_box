@@ -12,7 +12,7 @@ void playSound(const char* wavFilePath) {
 
     // Set PCM format
     snd_pcm_hw_params_t *hw_params;
-    snd_pcm_hw_params_allocate(&hw_params);
+    snd_pcm_hw_params_alloca(&hw_params);
     if ((err = snd_pcm_hw_params_any(pcm_handle, hw_params)) < 0) {
         printf("Can not configure this PCM device: %s\n", snd_strerror(err));
         return;

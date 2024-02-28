@@ -2,4 +2,4 @@
 
 #include <alsa/asoundlib.h>
 
-void playSound();
+void playSound(const char* wavFilePath);

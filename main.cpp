@@ -1,6 +1,9 @@
 #include "state_machine.h"
+#include "sound.h"
 
 int main() {
+    playSound("sounds/dissolve.wav");
+
     std::vector<Book> books{
         // {ID, thickness}
         {0, 2.f},
