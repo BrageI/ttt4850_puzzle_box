@@ -1,0 +1,20 @@
+#pragma once
+
+// HiFiBerry DAC+ ADC board (source: https://www.hifiberry.com/docs/hardware/gpio-usage-of-hifiberry-boards/)
+#define PIN_HIFIBERRY_CONFIG0 3
+#define PIN_HIFIBERRY_CONFIG1 5
+#define PIN_HIFIBERRY0 12
+#define PIN_HIFIBERRY1 35
+#define PIN_HIFIBERRY2 38
+#define PIN_HIFIBERRY3 40
+
+#define PIN_ULTRASONIC0_ECHO 7
+#define PIN_ULTRASONIC0_TRIG 8
+#define PIN_ULTRASONIC1_ECHO 10
+#define PIN_ULTRASONIC1_TRIG 11
+#define PIN_ULTRASONIC2_ECHO 13
+#define PIN_ULTRASONIC2_TRIG 15
+#define PIN_ULTRASONIC3_ECHO 16
+#define PIN_ULTRASONIC3_TRIG 18
+#define PIN_ULTRASONIC4_ECHO 19
+#define PIN_ULTRASONIC4_TRIG 21

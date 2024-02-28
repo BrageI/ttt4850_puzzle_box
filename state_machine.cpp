@@ -38,6 +38,10 @@ PuzzleBox::PuzzleBox(std::vector<Book>& books, EventQueue& event_queue):
     handle_ = event_queue_.schedule(Event::BOOK_RETURNED, 1500ms);
 }
 
+// For state functions, disable warnings about not all switch cases being handled
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch"
+
 void PuzzleBox::state1(const Event& event) {
     switch (event.type) {
         case Event::ENTRY:
@@ -92,3 +96,5 @@ void PuzzleBox::state3(const Event& event) {
             break;
     }
 }
+
+#pragma GCC diagnostic pop
