@@ -1,6 +1,19 @@
+#include <iostream>
+
 #include "state_machine.h"
+#include "ultrasound_reader.h"
+#include "gpio_assignment.h"
 
 int main() {
+    gpioInitialise(); // Necessary, don't remove
+    
+    // For test
+    HCSR04Driver driver{PIN_ULTRASONIC4_TRIG, PIN_ULTRASONIC4_ECHO};
+    driver.init();
+    auto reading{driver.poll()};
+    std::cout << "Test reading: " << reading << std::endl;
+    // End of test
+
     std::vector<Book> books{
         // {ID, thickness}
         {0, 2.f},
