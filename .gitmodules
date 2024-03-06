@@ -1,0 +1,3 @@
+[submodule "ws28128-rpi"]
+	path = ws28128-rpi
+	url = git@github.com:jazzycamel/ws28128-rpi.git

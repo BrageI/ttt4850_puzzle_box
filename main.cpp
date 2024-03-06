@@ -3,6 +3,7 @@
 #include "state_machine.h"
 #include "ultrasound_reader.h"
 #include "gpio_assignment.h"
+#include "ws28128-rpi/ws2812-rpi.h"
 
 int main() {
     gpioInitialise(); // Necessary, don't remove
