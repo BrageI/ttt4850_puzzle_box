@@ -8,7 +8,7 @@
 
 int main() {
     gpioInitialise(); // Necessary, don't remove
-    playSound("sounds/dissolve.wav");
+    system("aplay sounds/dissolve.wav &");
     
     // For test
     HCSR04Driver driver{PIN_ULTRASONIC4_TRIG, PIN_ULTRASONIC4_ECHO};
