@@ -15,6 +15,8 @@ struct Event {
         EXIT,
         BOOK_TAKEN,
         BOOK_RETURNED,
+        FAILURE,
+        VICTORY
     } Type;
     Type type;
 

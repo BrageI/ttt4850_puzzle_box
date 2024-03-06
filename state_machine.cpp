@@ -33,7 +33,7 @@ PuzzleBox::PuzzleBox(std::vector<Book>& books, EventQueue& event_queue):
         books_.emplace(book->id, *book);
     }
 
-    state_machine_.initialize(&PuzzleBox::state1);
+    state_machine_.initialize(&PuzzleBox::default);
     event_queue_.schedule(Event::BOOK_TAKEN, 1000ms);
     handle_ = event_queue_.schedule(Event::BOOK_RETURNED, 1500ms);
 }
@@ -42,7 +42,7 @@ PuzzleBox::PuzzleBox(std::vector<Book>& books, EventQueue& event_queue):
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch"
 
-void PuzzleBox::state1(const Event& event) {
+void PuzzleBox::default(const Event& event) {
     switch (event.type) {
         case Event::ENTRY:
             std::cout << "Entering state 1\n";
@@ -52,12 +52,12 @@ void PuzzleBox::state1(const Event& event) {
             break;
         case Event::BOOK_TAKEN:
             std::cout << "Book was taken\n";
-            state_machine_.performTransition(&PuzzleBox::state2);
+            state_machine_.performTransition(&PuzzleBox::failure);
             break;
     }
 }
 
-void PuzzleBox::state2(const Event& event) {
+void PuzzleBox::failure(const Event& event) {
     switch (event.type) {
         case Event::ENTRY:
             std::cout << "Entering state 2\n";
@@ -72,12 +72,12 @@ void PuzzleBox::state2(const Event& event) {
             break;
         case Event::BOOK_TAKEN:
             std::cout << "Book was taken\n";
-            state_machine_.performTransition(&PuzzleBox::state3);
+            state_machine_.performTransition(&PuzzleBox::inProgress);
             break;
     }
 }
 
-void PuzzleBox::state3(const Event& event) {
+void PuzzleBox::inProgress(const Event& event) {
     switch (event.type) {
         case Event::ENTRY:
             std::cout << "Entering state 3\n";
@@ -92,7 +92,27 @@ void PuzzleBox::state3(const Event& event) {
             break;
         case Event::BOOK_TAKEN:
             std::cout << "Book was taken\n";
-            state_machine_.performTransition(&PuzzleBox::state1);
+            state_machine_.performTransition(&PuzzleBox::default);
+            break;
+    }
+}
+
+    void PuzzleBox::newGame(const Event& event) {
+    switch (event.type) {
+        case Event::ENTRY:
+            std::cout << "Entering state 3\n";
+            event_queue_.schedule(Event::BOOK_TAKEN, 1000ms);
+            handle_ = event_queue_.schedule(Event::BOOK_RETURNED, 500ms);
+            break;
+        case Event::EXIT:
+            std::cout << "Exiting state 3\n\n";
+            break;
+        case Event::BOOK_RETURNED:
+            std::cout << "Book was returned\n";
+            break;
+        case Event::BOOK_TAKEN:
+            std::cout << "Book was taken\n";
+            state_machine_.performTransition(&PuzzleBox::default);
             break;
     }
 }

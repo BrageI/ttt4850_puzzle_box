@@ -6,6 +6,13 @@
 #include "event.h"
 
 
+enum class State {
+    DEFAULT,
+    IN_PROGRESS,
+    FAILURE,
+    VICTORY
+};
+
 template <typename T>
 class StateMachine {
 public:
@@ -31,7 +38,10 @@ private:
     EventQueue& event_queue_;
     // States:
     EventQueue::SchedulerHandle handle_;
-    void state1(const Event&);
-    void state2(const Event&);
-    void state3(const Event&);
+    void default(const Event&);
+    void failure(const Event&);
+    void inProgress(const Event&);
+    void newGame(const Event&);
 };
+
+

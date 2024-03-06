@@ -4,6 +4,7 @@
 #include "sound.h"
 #include "ultrasound_reader.h"
 #include "gpio_assignment.h"
+#include "puzzle.h"
 
 
 int main() {
@@ -16,7 +17,7 @@ int main() {
     auto reading{driver.poll()};
     std::cout << "Test reading: " << reading << std::endl;
     // End of test
-
+    
     std::vector<Book> books{
         // {ID, thickness}
         {0, 2.f},
