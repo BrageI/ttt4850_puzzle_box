@@ -18,11 +18,11 @@ struct Event {
     } Type;
     Type type;
     // The following fields may be relevant for certain event types
-    typename Book::Identifier book_id;
+    Book::Identifier book_id;
 
     Event(void);
     Event(Type t);
-    Event(Type t, typename Book::Identifier id);
+    Event(Type t, Book::Identifier id);
 };
 
 // Thread safe FIFO queue for incoming events
@@ -44,3 +44,5 @@ private:
     SchedulerHandle next_scheduler_handle_{0};
     std::map<SchedulerHandle, std::timed_mutex> cancellation_mutexes_;
 };
+
+void refreshAllBooks(std::vector<Book>& books, EventQueue& event_queue);

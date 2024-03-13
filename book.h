@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include "event.h"
 #include "ultrasound_reader.h"
 
 struct Book {
@@ -28,5 +27,3 @@ struct Book {
 
     HCSR04Driver ultrasound_driver;
 };
-
-void refreshAllBooks(std::vector<Book>& books, EventQueue& event_queue);
