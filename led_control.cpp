@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <signal.h>
+#include <thread>
+
 extern "C" {
 #include "ws2811/clk.h"
 #include "ws2811/gpio.h"
@@ -63,6 +65,7 @@ WS2812::WS2812(void) {
 }
 
 WS2812::~WS2812(void) {
+    std::cout << "Finishing LED driver\n";
     ws2811_fini(&ledstring_);
 }
 
@@ -71,6 +74,8 @@ void WS2812::render(void) {
     if ((ret = ws2811_render(&ledstring_)) != WS2811_SUCCESS) {
         std::cout << "ws2811_render failed: " << ws2811_get_return_t_str(ret) << std::endl;
     }
+    // Wait for DMA to write
+    std::this_thread::sleep_for(std::chrono::milliseconds{5});
 }
 
 void WS2812::turnOff(void) {
@@ -96,7 +101,7 @@ void WS2812::setRed(void) {
 
 void WS2812::setToVictoryColor(void) {
     for (auto i = 0; i < led_count_; i++) {
-        ledstring_.channel[0].leds[i] = 0xFFFFFFFF;
+        ledstring_.channel[0].leds[i] = 0x000000FF;
     }
     render();
 }

@@ -158,7 +158,6 @@ void PuzzleBox::stateGameInProgress(const Event& event) {
                 }
             } else {
                 std::cout << "Wrong book taken\n";
-                leds_.setRed();
                 state_machine_.performTransition(&PuzzleBox::stateWaitForAllBooksInserted);
             }
             break;
