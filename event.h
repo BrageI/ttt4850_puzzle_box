@@ -49,4 +49,4 @@ private:
     std::map<SchedulerHandle, std::timed_mutex> cancellation_mutexes_;
 };
 
-void refreshAllBooks(std::vector<Book>& books, EventQueue& event_queue);
+void pollAllBooks(std::vector<Book>& books, EventQueue& event_queue);

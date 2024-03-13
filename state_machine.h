@@ -29,7 +29,9 @@ public:
     StateMachine<PuzzleBox> state_machine_;
 
 private:
-    std::map<Book::Identifier, Book&> books_;
+    std::map<Book::Identifier, Book&> books_by_id_;
+    std::vector<Book*> books_;
+    bool allBooksAreInserted(void);
     WS2812 leds_;
 
     struct Game {
@@ -39,13 +41,14 @@ private:
     } game_;
     std::default_random_engine rng_;
 
+    const std::string sounds_dir_{"/home/pi/ttt4850_puzzle_box/sounds/"};
     void playSound(std::string name, std::optional<std::string> type=std::nullopt);
     
     EventQueue& event_queue_;
     // States:
-
     void stateWaitForAllBooksInserted(const Event&);
     void stateNewGame(const Event&);
     void stateGameInProgress(const Event&);
+    void stateMistake(const Event&);
     void stateVictory(const Event&);
 };

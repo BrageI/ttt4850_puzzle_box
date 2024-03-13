@@ -9,4 +9,6 @@ Book::Book(
     id{id},
     thickness{thickness},
     status{Status::UNKNOWN},
-    ultrasound_driver{ultrasound_trig_pin, ultrasound_trig_pin} {}
+    ultrasound_driver{ultrasound_trig_pin, ultrasound_echo_pin} {
+    ultrasound_driver.init();
+}

@@ -1,5 +1,6 @@
 #include "state_machine.h"
 
+#include <fstream>
 #include <iostream>
 #include <sstream>
 
@@ -33,15 +34,27 @@ PuzzleBox::PuzzleBox(std::vector<Book>& books, EventQueue& event_queue):
     rng_{},
     event_queue_{event_queue} {
     for (auto book = books.begin(); book < books.end(); book++) {
-        books_.emplace(book->id, *book);
-        game_.book_order.push_back(book->id);
+        books_by_id_.emplace(book->id, *book);
+        books_.push_back(&(*book));
     }
     state_machine_.initialize(&PuzzleBox::stateWaitForAllBooksInserted);
 }
 
+
+bool PuzzleBox::allBooksAreInserted(void) {
+    bool out{true};
+    for (const auto book: books_) {
+        if (book->status != Book::Status::INSERTED) {
+            out = false;
+            break;
+        }
+    }
+    return out;
+}
+
 void PuzzleBox::playSound(std::string name, std::optional<std::string> type) {
     std::stringstream cmd;
-    cmd << "aplay /home/pi/ttt4850_puzzle_box/sounds/";
+    cmd << "aplay " << sounds_dir_;
     if (type == std::nullopt) {
         cmd << game_.sound_type << "/";
     }
@@ -56,17 +69,14 @@ void PuzzleBox::playSound(std::string name, std::optional<std::string> type) {
 void PuzzleBox::stateWaitForAllBooksInserted(const Event& event) {
     switch (event.type) {
         case Event::ENTRY:
-            leds_.setRed();
+            std::cout << "Entering stateWaitForAllBooksInserted" << std::endl;
+            if (!allBooksAreInserted()) {
+                // Prevent red flash upon startup with al books inserted
+                leds_.setRed();
+            }
             [[fallthrough]]; // In case all books are returned to begin with
         case Event::BOOK_RETURNED: {
-            bool all_books_placed{true};
-            for (const auto& [id, book]: books_) {
-                if (book.status != Book::Status::INSERTED) {
-                    all_books_placed = false;
-                    break;
-                }
-            }
-            if (all_books_placed) {
+            if (allBooksAreInserted()) {
                 state_machine_.performTransition(&PuzzleBox::stateNewGame);
             }
             break;
@@ -77,10 +87,36 @@ void PuzzleBox::stateWaitForAllBooksInserted(const Event& event) {
 void PuzzleBox::stateNewGame(const Event& event) {
     switch (event.type) {
         case Event::ENTRY:
+            std::cout << "Entering stateNewGame" << std::endl;
             leds_.turnOff();
-            game_.sound_type = "B-rimba";
-            std::shuffle(game_.book_order.begin(), game_.book_order.end(), rng_);
             game_.num_completed_books = 0;
+            game_.sound_type = "B-rimba";
+
+            const struct {
+                bool operator()(const Book* a, const Book* b) {
+                    return a->thickness < b->thickness;
+                }
+            } sort_by_thickness;
+            std::sort(books_.begin(), books_.end(), sort_by_thickness);
+            
+            game_.book_order.clear();
+            std::ifstream order_file{sounds_dir_ + game_.sound_type + "/order"};
+            std::string line;
+            std::cout << "Melody order:\n";
+            while (std::getline(order_file, line)) {
+                std::istringstream iss(line);
+                size_t number;
+                if (!(iss >> number)) {
+                    break;
+                }
+                game_.book_order.push_back(books_[number-1]->id); // Numbering in file starts with 1
+                std::cout << "Number: " << number << std::endl;
+            }
+            std::cout << "Game Book ID order:\n";
+            for (auto& book_id: game_.book_order) {
+                std::cout << "Book ID: " << book_id << std::endl;
+            }
+            
             state_machine_.performTransition(&PuzzleBox::stateGameInProgress);
             break;
     }
@@ -94,6 +130,7 @@ void PuzzleBox::stateGameInProgress(const Event& event) {
 
     switch (event.type) {
         case Event::ENTRY:
+            std::cout << "Entering stateGameInProgress" << std::endl;
             leds_.turnOff();
             event_queue_.push(Event::PLAY_TASK);
             break;
@@ -106,6 +143,7 @@ void PuzzleBox::stateGameInProgress(const Event& event) {
             break;
         case Event::BOOK_TAKEN:
             if (event.book_id == game_.book_order[game_.num_completed_books]) {
+                std::cout << "Correct book taken\n";
                 game_.num_completed_books++;
                 if (game_.num_completed_books == game_.book_order.size()) {
                     state_machine_.performTransition(&PuzzleBox::stateVictory);
@@ -117,6 +155,7 @@ void PuzzleBox::stateGameInProgress(const Event& event) {
                     );
                 }
             } else {
+                std::cout << "Wrong book taken\n";
                 leds_.setRed();
                 state_machine_.performTransition(&PuzzleBox::stateWaitForAllBooksInserted);
             }
@@ -132,6 +171,7 @@ void PuzzleBox::stateVictory(const Event& event) {
     static size_t num_completed_victory_blinks{0};
     switch (event.type) {
         case Event::ENTRY:
+            std::cout << "Entering stateVictory" << std::endl;
             num_completed_victory_blinks = 0;
             event_queue_.push(Event::START_VICTORY_BLINK);
             break;

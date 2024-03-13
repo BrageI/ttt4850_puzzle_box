@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <thread>
+#include <iostream>
 
 using namespace std::chrono_literals;
 using namespace std::chrono;
@@ -10,6 +11,7 @@ HCSR04Driver::HCSR04Driver(unsigned int trig_pin, unsigned int echo_pin):
     trig_pin_{trig_pin}, echo_pin_{echo_pin} {}
 
 void HCSR04Driver::init(void) {
+    std::cout << "Trig: " << trig_pin_ << ", Echo: " << echo_pin_ << std::endl;
     gpioSetMode(trig_pin_, PI_OUTPUT);
     gpioWrite(trig_pin_, PI_OFF);
     gpioSetMode(echo_pin_, PI_INPUT);
@@ -25,7 +27,7 @@ float HCSR04Driver::poll(void) {
 
     auto timeout_start{steady_clock::now()};
     auto end{timeout_start};
-    constexpr auto timeout = 10ms;
+    constexpr auto timeout = 60ms;
     bool timed_out{false};
     while (!timed_out && gpioRead(echo_pin_) == PI_LOW) {
         end = steady_clock::now();
@@ -41,8 +43,9 @@ float HCSR04Driver::poll(void) {
         }
     }
     if (timed_out) {
-        // Try again
-        return poll();
+        // Assumed book outside of shelf, return large value
+        //std::cout << "Poll timed out. No ECHO signal on GPIO " << echo_pin_ << ". Retrying" << std::endl;
+        return 99999.f;
     }
     return duration_cast<nanoseconds>(end-pulse_start).count() / 58772.f; // Conversion from datasheet
 }

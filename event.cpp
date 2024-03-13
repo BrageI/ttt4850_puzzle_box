@@ -1,6 +1,6 @@
 #include "event.h"
 
-#include <future>
+#include <iostream>
 
 Event::Event(void) {}
 Event::Event(Type t): type{t} {}
@@ -53,9 +53,12 @@ void EventQueue::cancel(SchedulerHandle handle) {
     }
 }
 
-void refreshAllBooks(std::vector<Book>& books, EventQueue& event_queue) {
+void pollAllBooks(std::vector<Book>& books, EventQueue& event_queue) {
+    // std::cout << "Polling all books\n";
     for (auto& book: books) {
+        // std::cout << "Polling book " << book.id << "\n";
         auto reading{book.ultrasound_driver.poll()};
+        // std::cout << "Book " << book.id << ": " << reading << "cm\n";
         static const float insert_threshold{12.f};
         static const float take_threshold{14.f};
         switch (book.status) {
