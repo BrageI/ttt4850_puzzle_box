@@ -17,12 +17,12 @@ struct Event {
         BOOK_RETURNED,
     } Type;
     Type type;
-
-    Event(void) {}
-    Event(Type t): type{t} {}
-
     // The following fields may be relevant for certain event types
-    Book::Identifier book_id;
+    typename Book::Identifier book_id;
+
+    Event(void);
+    Event(Type t);
+    Event(Type t, typename Book::Identifier id);
 };
 
 // Thread safe FIFO queue for incoming events

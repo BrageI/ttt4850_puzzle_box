@@ -2,6 +2,10 @@
 
 #include <future>
 
+Event::Event(void) {}
+Event::Event(Type t): type{t} {}
+Event::Event(Type t, typename Book::Identifier id): type{t}, book_id{id} {}
+
 void EventQueue::push(Event event) {
     std::lock_guard<std::mutex> lock{mutex_};
     queue_.push(event);

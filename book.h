@@ -1,8 +1,16 @@
 #pragma once
+#include <vector>
+#include "event.h"
+#include "ultrasound_reader.h"
 
 struct Book {
     using Identifier = unsigned int;
-    Book(Identifier, float thickness);
+    Book(
+        Identifier,
+        float thickness,
+        unsigned int ultrasound_trig_pin,
+        unsigned int ultrasound_echo_pin
+    );
     
     const Identifier id;
     const float thickness; // [cm]
@@ -17,6 +25,8 @@ struct Book {
      * Since slot and book belong together, slot related info is stored
      * here. If they are split in the future, slot info/slot-book mapping
      * should be split out from this class accordingly.*/
-    // const unsigned int sensor_in;
-    // const unsigned int sensor_out;
+
+    HCSR04Driver ultrasound_driver;
 };
+
+void refreshAllBooks(std::vector<Book>& books, EventQueue& event_queue);

@@ -4,6 +4,7 @@
 
 #include "book.h"
 #include "event.h"
+#include "led_control.h"
 
 
 template <typename T>
@@ -27,6 +28,7 @@ public:
 
 private:
     std::map<Book::Identifier, Book&> books_;
+    WS2812 leds_;
 
     EventQueue& event_queue_;
     // States:
