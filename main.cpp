@@ -3,11 +3,14 @@
 #include "state_machine.h"
 #include "ultrasound_reader.h"
 #include "gpio_assignment.h"
-#include "ws28128-rpi/ws2812-rpi.h"
+#include "led_control.h"
 
 int main() {
     gpioInitialise(); // Necessary, don't remove
-    
+
+    WS2812 leds;
+    leds.setGreen();
+
     // For test
     HCSR04Driver driver{PIN_ULTRASONIC4_TRIG, PIN_ULTRASONIC4_ECHO};
     driver.init();
