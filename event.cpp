@@ -53,35 +53,49 @@ void EventQueue::cancel(SchedulerHandle handle) {
     }
 }
 
+static void checkForTakenReading(float reading_cm, Book& book, EventQueue& event_queue) {
+    if (reading_cm > book.taken_threshold) {
+        book.consecutive_taken_reading++;
+        if (book.consecutive_taken_reading >= book.consecutive_reading_requirement) {
+            std::cout << "Book " << book.id << ": " << reading_cm << "cm\n";
+            event_queue.push({Event::BOOK_TAKEN, book.id});
+            book.status = Book::Status::TAKEN_OUT;
+            book.consecutive_taken_reading = 0;
+        }
+    } else {
+        book.consecutive_taken_reading = 0;
+    }
+}
+
+static void checkForReturnedReading(float reading_cm, Book& book, EventQueue& event_queue) {
+    if (reading_cm < book.returned_threshold) {
+        book.consecutive_returned_reading++;
+        if (book.consecutive_returned_reading >= book.consecutive_reading_requirement) {
+            std::cout << "Book " << book.id << ": " << reading_cm << "cm\n";
+            event_queue.push({Event::BOOK_RETURNED, book.id});
+            book.status = Book::Status::INSERTED;
+            book.consecutive_returned_reading = 0;
+        }
+    } else {
+        book.consecutive_returned_reading = 0;
+    }
+}
+
 void pollAllBooks(std::vector<Book>& books, EventQueue& event_queue) {
     // std::cout << "Polling all books\n";
     for (auto& book: books) {
         // std::cout << "Polling book " << book.id << "\n";
-        auto reading{book.ultrasound_driver.poll()};
-        // std::cout << "Book " << book.id << ": " << reading << "cm\n";
-        static const float insert_threshold{12.f};
-        static const float take_threshold{14.f};
+        auto reading_cm{book.ultrasound_driver.poll()};
         switch (book.status) {
             case Book::Status::UNKNOWN:
-                if (reading <= insert_threshold) {
-                    event_queue.push({Event::BOOK_RETURNED, book.id});
-                    book.status = Book::Status::INSERTED;
-                } else {
-                    event_queue.push({Event::BOOK_TAKEN, book.id});
-                    book.status = Book::Status::TAKEN_OUT;
-                }
+                checkForTakenReading(reading_cm, book, event_queue);
+                checkForReturnedReading(reading_cm, book, event_queue);
                 break;
             case Book::Status::INSERTED:
-                if (reading > take_threshold) {
-                    event_queue.push({Event::BOOK_TAKEN, book.id});
-                    book.status = Book::Status::TAKEN_OUT;
-                }
+                checkForTakenReading(reading_cm, book, event_queue);
                 break;
             case Book::Status::TAKEN_OUT:
-                if (reading < insert_threshold) {
-                    event_queue.push({Event::BOOK_RETURNED, book.id});
-                    book.status = Book::Status::INSERTED;
-                }
+                checkForReturnedReading(reading_cm, book, event_queue);
                 break;
         }
     }

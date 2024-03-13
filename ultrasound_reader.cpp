@@ -19,7 +19,8 @@ void HCSR04Driver::init(void) {
 
 float HCSR04Driver::poll(void) {
 
-    std::this_thread::sleep_for(10us);
+    while (gpioRead(echo_pin_) == PI_HIGH) {}
+    std::this_thread::sleep_for(10ms);
     gpioWrite(trig_pin_, PI_ON);
     std::this_thread::sleep_for(10us);
     gpioWrite(trig_pin_, PI_OFF);
@@ -27,7 +28,7 @@ float HCSR04Driver::poll(void) {
 
     auto timeout_start{steady_clock::now()};
     auto end{timeout_start};
-    constexpr auto timeout = 60ms;
+    constexpr auto timeout = 100ms;
     bool timed_out{false};
     while (!timed_out && gpioRead(echo_pin_) == PI_LOW) {
         end = steady_clock::now();

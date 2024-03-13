@@ -48,7 +48,10 @@ private:
     // States:
     void stateWaitForAllBooksInserted(const Event&);
     void stateNewGame(const Event&);
+    EventQueue::SchedulerHandle play_task_handle_;
+    EventQueue::SchedulerHandle progress_blink_handle_;
     void stateGameInProgress(const Event&);
     void stateMistake(const Event&);
+    EventQueue::SchedulerHandle victory_blink_handle_;
     void stateVictory(const Event&);
 };
