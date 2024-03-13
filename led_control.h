@@ -11,6 +11,7 @@ public:
     void turnOff(void);
     void setGreen(void);
     void setRed(void);
+    void setToVictoryColor(void);
 private:
     void render(void);
     

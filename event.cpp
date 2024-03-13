@@ -80,7 +80,6 @@ void refreshAllBooks(std::vector<Book>& books, EventQueue& event_queue) {
                     book.status = Book::Status::INSERTED;
                 }
                 break;
-            
         }
     }
 }

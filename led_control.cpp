@@ -93,3 +93,10 @@ void WS2812::setRed(void) {
     }
     render();
 }
+
+void WS2812::setToVictoryColor(void) {
+    for (auto i = 0; i < led_count_; i++) {
+        ledstring_.channel[0].leds[i] = 0xFFFFFFFF;
+    }
+    render();
+}

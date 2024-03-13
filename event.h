@@ -15,6 +15,10 @@ struct Event {
         EXIT,
         BOOK_TAKEN,
         BOOK_RETURNED,
+        PLAY_TASK,
+        END_PROGRESS_BLINK,
+        START_VICTORY_BLINK,
+        END_VICTORY_BLINK,
     } Type;
     Type type;
     // The following fields may be relevant for certain event types
