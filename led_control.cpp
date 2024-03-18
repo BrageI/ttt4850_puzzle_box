@@ -1,7 +1,8 @@
 #include "led_control.h"
 
 #include <iostream>
-#include <signal.h>
+
+#include "gpio_assignment.h"
 extern "C" {
 #include "ws2811/clk.h"
 #include "ws2811/gpio.h"
@@ -11,20 +12,9 @@ extern "C" {
 
 // defaults for cmdline options
 #define TARGET_FREQ             WS2811_TARGET_FREQ
-#define GPIO_PIN                18
+#define GPIO_PIN                PIN_LED_STRIP
 #define DMA                     10
 #define STRIP_TYPE              WS2812_STRIP
-
-//static void setup_handlers(void)
-//{
-//    struct sigaction sa =
-//    {
-//        .sa_handler = ctrl_c_handler,
-//    };
-//
-//    sigaction(SIGINT, &sa, NULL);
-//    sigaction(SIGTERM, &sa, NULL);
-//}
 
 WS2812::WS2812(void) {
     ledstring_ =
@@ -96,7 +86,7 @@ void WS2812::setRed(void) {
 
 void WS2812::setToVictoryColor(void) {
     for (auto i = 0; i < led_count_; i++) {
-        ledstring_.channel[0].leds[i] = 0xFFFFFFFF;
+        ledstring_.channel[0].leds[i] = 0x88FFFF00;
     }
     render();
 }

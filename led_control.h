@@ -17,6 +17,4 @@ private:
     
     static constexpr int led_count_{45};
     ws2811_t ledstring_;
-    //std::array<ws2811_led_t, led_count_> leds_;
-
 };
