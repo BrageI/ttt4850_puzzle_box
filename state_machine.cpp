@@ -4,6 +4,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "gpio_assignment.h"
+
 using namespace std::chrono_literals;
 
 template <typename T>
@@ -30,7 +32,6 @@ void StateMachine<T>::performTransition(State next_state) {
 
 PuzzleBox::PuzzleBox(std::vector<Book>& books, EventQueue& event_queue):
     state_machine_{this},
-    leds_{},
     rng_{},
     event_queue_{event_queue} {
     for (auto book = books.begin(); book < books.end(); book++) {
@@ -53,6 +54,7 @@ bool PuzzleBox::allBooksAreInserted(void) {
 }
 
 void PuzzleBox::playSound(std::string name, std::optional<std::string> type) {
+    if (PIN_LED_STRIP == 18) return;
     std::stringstream cmd;
     cmd << "aplay " << sounds_dir_;
     if (type == std::nullopt) {
@@ -70,7 +72,7 @@ void PuzzleBox::stateWaitForAllBooksInserted(const Event& event) {
     switch (event.type) {
         case Event::ENTRY:
             std::cout << "Entering stateWaitForAllBooksInserted" << std::endl;
-            leds_.setRed();
+            leds::setRed();
             [[fallthrough]]; // In case all books are returned to begin with
         case Event::BOOK_RETURNED: {
             if (allBooksAreInserted()) {
@@ -85,7 +87,7 @@ void PuzzleBox::stateNewGame(const Event& event) {
     switch (event.type) {
         case Event::ENTRY:
             std::cout << "Entering stateNewGame" << std::endl;
-            leds_.turnOff();
+            leds::turnOff();
             game_.num_completed_books = 0;
             game_.sound_type = "B-rimba";
 
@@ -128,7 +130,7 @@ void PuzzleBox::stateGameInProgress(const Event& event) {
     switch (event.type) {
         case Event::ENTRY:
             std::cout << "Entering stateGameInProgress" << std::endl;
-            leds_.turnOff();
+            leds::turnOff();
             event_queue_.push(Event::PLAY_TASK);
             break;
         case Event::EXIT:
@@ -150,7 +152,7 @@ void PuzzleBox::stateGameInProgress(const Event& event) {
                 if (game_.num_completed_books == game_.book_order.size()) {
                     state_machine_.performTransition(&PuzzleBox::stateVictory);
                 } else {
-                    leds_.setGreen();
+                    leds::setGreen();
                     progress_blink_handle_ = event_queue_.schedule(
                         Event::END_PROGRESS_BLINK,
                         std::chrono::milliseconds{700}
@@ -158,12 +160,12 @@ void PuzzleBox::stateGameInProgress(const Event& event) {
                 }
             } else {
                 std::cout << "Wrong book taken\n";
-                leds_.setRed();
+                leds::setRed();
                 state_machine_.performTransition(&PuzzleBox::stateWaitForAllBooksInserted);
             }
             break;
         case Event::END_PROGRESS_BLINK:
-            leds_.turnOff();
+            leds::turnOff();
             break;
     }
 }
@@ -181,14 +183,14 @@ void PuzzleBox::stateVictory(const Event& event) {
             event_queue_.cancel(victory_blink_handle_);
             break;
         case Event::START_VICTORY_BLINK:
-            leds_.setToVictoryColor();
+            leds::setToVictoryColor();
             victory_blink_handle_ = event_queue_.schedule(
                 Event::END_VICTORY_BLINK,
                 std::chrono::milliseconds{300}
             );
             break;
         case Event::END_VICTORY_BLINK:
-            leds_.turnOff();
+            leds::turnOff();
             num_completed_victory_blinks++;
             if (num_completed_victory_blinks == total_victory_blinks) {
                 state_machine_.performTransition(&PuzzleBox::stateWaitForAllBooksInserted);

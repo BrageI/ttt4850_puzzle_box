@@ -1,6 +1,7 @@
 #include "led_control.h"
 
 #include <iostream>
+#include <thread>
 
 #include "gpio_assignment.h"
 extern "C" {
@@ -16,6 +17,18 @@ extern "C" {
 #define DMA                     10
 #define STRIP_TYPE              WS2812_STRIP
 
+namespace leds {
+
+class WS2812 {
+public:
+    WS2812(void);
+    ~WS2812();
+    void render(void);
+
+    static constexpr int led_count_{49};
+    ws2811_t ledstring_;
+};
+
 WS2812::WS2812(void) {
     ledstring_ =
     {
@@ -29,7 +42,7 @@ WS2812::WS2812(void) {
                 .invert = 0,
                 .count = led_count_,
                 .strip_type = STRIP_TYPE,
-                .brightness = 255,
+                .brightness = 50,
             },
             [1] =
             {
@@ -57,36 +70,48 @@ WS2812::~WS2812(void) {
 }
 
 void WS2812::render(void) {
+    std::cout << "Rendering. Value: " << std::hex << ledstring_.channel[0].leds[0] << std::endl;
     ws2811_return_t ret;
     if ((ret = ws2811_render(&ledstring_)) != WS2811_SUCCESS) {
         std::cout << "ws2811_render failed: " << ws2811_get_return_t_str(ret) << std::endl;
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds{50});
 }
 
-void WS2812::turnOff(void) {
-    for (auto i = 0; i < led_count_; i++) {
-        ledstring_.channel[0].leds[i] = 0x00000000;
+void turnOff(void) {
+    std::cout << "Turning off\n";
+    WS2812 leds;
+    for (auto i = 0; i < leds.led_count_; i++) {
+        leds.ledstring_.channel[0].leds[i] = 0x00000000;
     }
-    render();
+    leds.render();
 }
 
-void WS2812::setGreen(void) {
-    for (auto i = 0; i < led_count_; i++) {
-        ledstring_.channel[0].leds[i] = 0x0000FF00;
+void setGreen(void) {
+    std::cout << "Turning green\n";
+    WS2812 leds;
+    for (auto i = 0; i < leds.led_count_; i++) {
+        leds.ledstring_.channel[0].leds[i] = 0x00003200;
     }
-    render();
+    leds.render();
 }
 
-void WS2812::setRed(void) {
-    for (auto i = 0; i < led_count_; i++) {
-        ledstring_.channel[0].leds[i] = 0x00FF0000;
+void setRed(void) {
+    std::cout << "Turning red\n";
+    WS2812 leds;
+    for (auto i = 0; i < leds.led_count_; i++) {
+        leds.ledstring_.channel[0].leds[i] = 0x00320000;
     }
-    render();
+    leds.render();
 }
 
-void WS2812::setToVictoryColor(void) {
-    for (auto i = 0; i < led_count_; i++) {
-        ledstring_.channel[0].leds[i] = 0x88FFFF00;
+void setToVictoryColor(void) {
+    std::cout << "Turning to victory color\n";
+    WS2812 leds;
+    for (auto i = 0; i < leds.led_count_; i++) {
+        leds.ledstring_.channel[0].leds[i] = 0x32323200;
     }
-    render();
+    leds.render();
 }
+
+} // namespace leds

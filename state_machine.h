@@ -32,7 +32,6 @@ private:
     std::map<Book::Identifier, Book&> books_by_id_;
     std::vector<Book*> books_;
     bool allBooksAreInserted(void);
-    WS2812 leds_;
 
     struct Game {
         std::string sound_type;
