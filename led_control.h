@@ -18,3 +18,16 @@ private:
     static constexpr int led_count_{45};
     ws2811_t ledstring_;
 };
+
+namespace leds{
+enum class Color {
+    OFF,
+    RED,
+    GREEN,
+    VICTORY
+};
+
+void init(void);
+void setColor(Color);
+    
+}

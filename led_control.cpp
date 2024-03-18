@@ -1,5 +1,6 @@
 #include "led_control.h"
 
+#include <pigpio.h>
 #include <iostream>
 
 #include "gpio_assignment.h"
@@ -12,7 +13,7 @@ extern "C" {
 
 // defaults for cmdline options
 #define TARGET_FREQ             WS2811_TARGET_FREQ
-#define GPIO_PIN                PIN_LED_STRIP
+#define GPIO_PIN                PIN_LED_STRIP_RPI
 #define DMA                     10
 #define STRIP_TYPE              WS2812_STRIP
 
@@ -89,4 +90,38 @@ void WS2812::setToVictoryColor(void) {
         ledstring_.channel[0].leds[i] = 0x88FFFF00;
     }
     render();
+}
+
+namespace leds{
+void init(void) {
+    gpioSetMode(PIN_TO_ARDUINO_LED_RED, PI_OUTPUT);
+    gpioSetMode(PIN_TO_ARDUINO_LED_GREEN, PI_OUTPUT);
+    gpioSetMode(PIN_TO_ARDUINO_LED_VICTORY, PI_OUTPUT);
+}
+
+void setColor(Color color) {
+    switch (color) {
+        case Color::OFF:
+            gpioWrite(PIN_TO_ARDUINO_LED_RED, PI_OFF);
+            gpioWrite(PIN_TO_ARDUINO_LED_GREEN, PI_OFF);
+            gpioWrite(PIN_TO_ARDUINO_LED_VICTORY, PI_OFF);
+            break;
+        case Color::RED:
+            gpioWrite(PIN_TO_ARDUINO_LED_RED, PI_ON);
+            gpioWrite(PIN_TO_ARDUINO_LED_GREEN, PI_OFF);
+            gpioWrite(PIN_TO_ARDUINO_LED_VICTORY, PI_OFF);
+            break;
+        case Color::GREEN:
+            gpioWrite(PIN_TO_ARDUINO_LED_RED, PI_OFF);
+            gpioWrite(PIN_TO_ARDUINO_LED_GREEN, PI_ON);
+            gpioWrite(PIN_TO_ARDUINO_LED_VICTORY, PI_OFF);
+            break;
+        case Color::VICTORY:
+            gpioWrite(PIN_TO_ARDUINO_LED_RED, PI_OFF);
+            gpioWrite(PIN_TO_ARDUINO_LED_GREEN, PI_OFF);
+            gpioWrite(PIN_TO_ARDUINO_LED_VICTORY, PI_ON);
+            break;
+    }
+}
+
 }
