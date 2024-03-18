@@ -30,7 +30,7 @@ void StateMachine<T>::performTransition(State next_state) {
 
 PuzzleBox::PuzzleBox(std::vector<Book>& books, EventQueue& event_queue):
     state_machine_{this},
-    leds_{},
+    //leds_{},
     rng_{},
     event_queue_{event_queue} {
     for (auto book = books.begin(); book < books.end(); book++) {

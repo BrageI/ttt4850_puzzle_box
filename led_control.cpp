@@ -1,6 +1,7 @@
 #include "led_control.h"
 
 #include <iostream>
+#include <thread>
 
 #include "gpio_assignment.h"
 extern "C" {
@@ -17,6 +18,7 @@ extern "C" {
 #define STRIP_TYPE              WS2812_STRIP
 
 WS2812::WS2812(void) {
+    std::cout << "Initializing LEDs!\n"; 
     ledstring_ =
     {
         .freq = TARGET_FREQ,
@@ -50,6 +52,7 @@ WS2812::WS2812(void) {
         //return ret;
     }
 
+    turnOff();
 }
 
 WS2812::~WS2812(void) {
@@ -61,9 +64,11 @@ void WS2812::render(void) {
     if ((ret = ws2811_render(&ledstring_)) != WS2811_SUCCESS) {
         std::cout << "ws2811_render failed: " << ws2811_get_return_t_str(ret) << std::endl;
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds{2000});
 }
 
 void WS2812::turnOff(void) {
+    std::cout << "LEDs: Turning off" << std::endl;
     for (auto i = 0; i < led_count_; i++) {
         ledstring_.channel[0].leds[i] = 0x00000000;
     }
@@ -71,6 +76,7 @@ void WS2812::turnOff(void) {
 }
 
 void WS2812::setGreen(void) {
+    std::cout << "LEDs: Turning green" << std::endl;
     for (auto i = 0; i < led_count_; i++) {
         ledstring_.channel[0].leds[i] = 0x0000FF00;
     }
@@ -78,6 +84,7 @@ void WS2812::setGreen(void) {
 }
 
 void WS2812::setRed(void) {
+    std::cout << "LEDs: Turning red" << std::endl;
     for (auto i = 0; i < led_count_; i++) {
         ledstring_.channel[0].leds[i] = 0x00FF0000;
     }
@@ -85,6 +92,7 @@ void WS2812::setRed(void) {
 }
 
 void WS2812::setToVictoryColor(void) {
+    std::cout << "LEDs: Setting to victory color" << std::endl;
     for (auto i = 0; i < led_count_; i++) {
         ledstring_.channel[0].leds[i] = 0x88FFFF00;
     }
