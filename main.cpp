@@ -1,27 +1,11 @@
-#include <atomic>
 #include <iostream>
-#include <signal.h>
 
 #include "state_machine.h"
 #include "ultrasound_reader.h"
 #include "gpio_assignment.h"
 #include "led_control.h"
 
-static std::atomic_bool is_running{true};
-
-void handleInterruption(int s) {
-    is_running.store(false);
-}
-
 int main() {
-    // Do proper cleanup on exit. From:
-    // https://stackoverflow.com/questions/1641182/how-can-i-catch-a-ctrl-c-event
-    struct sigaction sig_int_handler;
-    sig_int_handler.sa_handler = handleInterruption;
-    sigemptyset(&sig_int_handler.sa_mask);
-    sig_int_handler.sa_flags = 0;
-    sigaction(SIGINT, &sig_int_handler, NULL);
-
     gpioInitialise(); // Necessary, don't remove
 
     std::vector<Book> books{
@@ -37,7 +21,7 @@ int main() {
     PuzzleBox puzzle_box{books, event_queue};
     
     Event next_event;
-    while (is_running.load()) {
+    while (true) {
         // Poll sensors, update state, and queue events
         pollAllBooks(books, event_queue);
 
