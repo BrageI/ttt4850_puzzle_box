@@ -33,15 +33,16 @@ private:
     std::vector<Book*> books_;
     bool allBooksAreInserted(void);
 
+    const std::string sounds_dir_{"/home/pi/ttt4850_puzzle_box/sounds/"};
+    std::vector<std::string> sound_types_;
+    void playSound(std::string name, std::optional<std::string> type=std::nullopt);
+
     struct Game {
         std::string sound_type;
         std::vector<Book::Identifier> book_order;
         size_t num_completed_books;
     } game_;
     std::default_random_engine rng_;
-
-    const std::string sounds_dir_{"/home/pi/ttt4850_puzzle_box/sounds/"};
-    void playSound(std::string name, std::optional<std::string> type=std::nullopt);
     
     EventQueue& event_queue_;
     // States:

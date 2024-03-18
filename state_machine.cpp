@@ -1,5 +1,6 @@
 #include "state_machine.h"
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -36,6 +37,15 @@ PuzzleBox::PuzzleBox(std::vector<Book>& books, EventQueue& event_queue):
         books_by_id_.emplace(book->id, *book);
         books_.push_back(&(*book));
     }
+
+
+    for(auto& type : std::filesystem::recursive_directory_iterator(sounds_dir_)) {
+        if (type.is_directory()) {
+            sound_types_.push_back(type.path().filename().string());
+        }
+    }
+
+
     state_machine_.initialize(&PuzzleBox::stateWaitForAllBooksInserted);
 }
 
@@ -81,12 +91,18 @@ void PuzzleBox::stateWaitForAllBooksInserted(const Event& event) {
 }
 
 void PuzzleBox::stateNewGame(const Event& event) {
+    // Example from: https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+
     switch (event.type) {
         case Event::ENTRY:
             std::cout << "Entering stateNewGame" << std::endl;
             leds::setColor(leds::Color::OFF);
             game_.num_completed_books = 0;
-            game_.sound_type = "B-rimba";
+            std::uniform_int_distribution<> all_sounds(0, sound_types_.size()-1);
+            game_.sound_type = sound_types_[all_sounds(gen)];
+            std::cout << "Selected sound type " << game_.sound_type << std::endl;
 
             const struct {
                 bool operator()(const Book* a, const Book* b) {
@@ -105,8 +121,10 @@ void PuzzleBox::stateNewGame(const Event& event) {
                 if (!(iss >> number)) {
                     break;
                 }
-                game_.book_order.push_back(books_[number-1]->id); // Numbering in file starts with 1
-                std::cout << "Number: " << number << std::endl;
+                if (number <= books_.size()) { // To prevent it from breaking completely if not all slots are active during testing
+                    game_.book_order.push_back(books_[number-1]->id); // Numbering in file starts with 1
+                    std::cout << "Number: " << number << std::endl;
+                }
             }
             std::cout << "Game Book ID order:\n";
             for (auto& book_id: game_.book_order) {
@@ -158,6 +176,7 @@ void PuzzleBox::stateGameInProgress(const Event& event) {
             } else {
                 std::cout << "Wrong book taken\n";
                 leds::setColor(leds::Color::RED);
+                playSound("dissolve", "");
                 state_machine_.performTransition(&PuzzleBox::stateWaitForAllBooksInserted);
             }
             break;
