@@ -140,7 +140,7 @@ void PuzzleBox::stateGameInProgress(const Event& event) {
     // Example from: https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution
     static std::random_device rd;
     static std::mt19937 gen(rd());
-    std::uniform_int_distribution<> next_sound_interval_ms(30*1000, 60*1000);
+    std::uniform_int_distribution<> next_sound_interval_ms(20*1000, 40*1000);
 
     switch (event.type) {
         case Event::ENTRY:
@@ -176,7 +176,7 @@ void PuzzleBox::stateGameInProgress(const Event& event) {
             } else {
                 std::cout << "Wrong book taken\n";
                 leds::setColor(leds::Color::RED);
-                playSound("dissolve", "");
+                playSound("failure", "");
                 state_machine_.performTransition(&PuzzleBox::stateWaitForAllBooksInserted);
             }
             break;
@@ -192,6 +192,7 @@ void PuzzleBox::stateVictory(const Event& event) {
     switch (event.type) {
         case Event::ENTRY:
             std::cout << "Entering stateVictory" << std::endl;
+            playSound("victory", "");
             num_completed_victory_blinks = 0;
             event_queue_.push(Event::START_VICTORY_BLINK);
             break;
