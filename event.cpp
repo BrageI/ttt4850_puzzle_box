@@ -86,6 +86,7 @@ void pollAllBooks(std::vector<Book>& books, EventQueue& event_queue) {
     for (auto& book: books) {
         auto reading_cm{book.ultrasound_driver.poll()};
         //if (book.id == 4) std::cout << "Book " << book.id << " has reading: " <<  reading_cm << " cm.\n";
+        //std::cout << "Book " << book.id << " has reading: " <<  reading_cm << " cm.\n";
         switch (book.status) {
             case Book::Status::UNKNOWN:
                 checkForTakenReading(reading_cm, book, event_queue);

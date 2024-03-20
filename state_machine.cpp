@@ -106,7 +106,7 @@ void PuzzleBox::stateNewGame(const Event& event) {
 
             const struct {
                 bool operator()(const Book* a, const Book* b) {
-                    return a->thickness < b->thickness;
+                    return a->thickness > b->thickness;
                 }
             } sort_by_thickness;
             std::sort(books_.begin(), books_.end(), sort_by_thickness);
